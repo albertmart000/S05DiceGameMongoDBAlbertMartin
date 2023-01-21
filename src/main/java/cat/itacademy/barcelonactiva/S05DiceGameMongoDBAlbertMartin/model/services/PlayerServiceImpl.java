@@ -1,12 +1,13 @@
 package cat.itacademy.barcelonactiva.S05DiceGameMongoDBAlbertMartin.model.services;
 
+import cat.itacademy.barcelonactiva.S05DiceGameMongoDBAlbertMartin.model.domain.Dice;
 import cat.itacademy.barcelonactiva.S05DiceGameMongoDBAlbertMartin.model.domain.Game;
 import cat.itacademy.barcelonactiva.S05DiceGameMongoDBAlbertMartin.model.domain.Player;
-import cat.itacademy.barcelonactiva.S05DiceGameMongoDBAlbertMartin.model.repository.IGameRepository;
 import cat.itacademy.barcelonactiva.S05DiceGameMongoDBAlbertMartin.model.repository.IPlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +17,6 @@ public class PlayerServiceImpl implements IPlayerService {
 
     @Autowired
     private IPlayerRepository playerRepository;
-
-    @Autowired
-    private IGameRepository gameRepository;
 
     @Autowired
     private SequenceGeneratorService sequenceGeneratorService;
@@ -39,7 +37,11 @@ public class PlayerServiceImpl implements IPlayerService {
 
     @Override
     public Optional<Player> getPlayerById(Long id) {
-        return playerRepository.findById(id);
+        Optional<Player> optionalPlayer = this.playerRepository.findById(id);
+        if (optionalPlayer.isPresent()) {
+            return playerRepository.findById(id);
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -51,42 +53,64 @@ public class PlayerServiceImpl implements IPlayerService {
             playerUpdated.setRegistrationDate(playerToUpdate.getRegistrationDate());
             return playerRepository.save(playerUpdated);
         }
-
         return null;
     }
 
-//    Post post = postRepository.findAll().get(1);
-//
-//    Comment comment = new Comment();
-//    comment.setComment("comment");
-//    comment.setRating(5);
-//
-//    post.addComment(comment);
-//    postRepository.save(post);
-
-    //   this.patients.add(patient);
-//}
-
-
     @Override
     public Game addGame(Long playerId, Game game) {
+        Game newGame = createGame(playerId);
         Optional<Player> optionalPlayer = getPlayerById(playerId);
         if (optionalPlayer.isPresent()) {
             Player player = optionalPlayer.get();
-            // Game game = new Game();
-            game.setPlayer(player);
-            //player.getGameList().add(game);
-            //player.addGame(gameRepository);
-            //playerRepository.save(player);
-            return gameRepository.save(game);
+            List<Game> listGamesPlayer = player.getGameList();
+            listGamesPlayer.add(newGame);
+            player.setGameList(listGamesPlayer);
+            double rateGamesWon;
+            int gamesWon = 0;
+            for (Game gamePlayed : listGamesPlayer) {
+                if (gamePlayed.getDice1() + gamePlayed.getDice2() == 7)
+                    gamesWon++;
+            }
+            rateGamesWon = (double) gamesWon / listGamesPlayer.size() * 100;
+            player.setRateGamesWon(rateGamesWon);
+            playerRepository.save(player);
+        }
+        return newGame;
+    }
+
+    @Override
+    public Game createGame(Long playerId) {
+        int dice1 = Dice.throwDice();
+        int dice2 = Dice.throwDice();
+        return new Game(playerId, dice1, dice2);
+    }
+
+    @Override
+    public List<Game> getGameListByPlayer(Long playerId) {
+        Optional<Player> optionalPlayer = getPlayerById(playerId);
+        if (optionalPlayer.isPresent()) {
+            return optionalPlayer.get().getGameList();
         }
         return null;
     }
 
     @Override
-    public Boolean deletePlayer(Long id) {
-        playerRepository.deleteById(id);
-        return true;
+    public void deletePlayer(Long playerId) {
+        Optional<Player> optionalPlayer = getPlayerById(playerId);
+        if (optionalPlayer.isPresent()) {
+            playerRepository.deleteById(playerId);
+        }
+    }
+
+    @Override
+    public void deleteGameList(Long playerId) {
+        Optional<Player> optionalPlayer = getPlayerById(playerId);
+        if (optionalPlayer.isPresent()) {
+            Player player = optionalPlayer.get();
+            player.setGameList(new ArrayList<>());
+            player.setRateGamesWon(0.0);
+            playerRepository.save(player);
+        }
     }
 
     @Override
@@ -125,5 +149,4 @@ public class PlayerServiceImpl implements IPlayerService {
         return playerList.stream()
                 .sorted(comparator.reversed()).toList();
     }
-
 }

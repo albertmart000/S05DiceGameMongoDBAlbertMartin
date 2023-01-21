@@ -82,11 +82,37 @@ public class PlayerController {
     @PostMapping("/players/{playerId}/games")
     public ResponseEntity<Game> addGame(@PathVariable Long playerId, @RequestBody Game game) {
         try {
-            playerService.addGame(playerId, game);
-            return new ResponseEntity<>(game, HttpStatus.CREATED);
+            Game newGame = playerService.addGame(playerId, game);
+            return new ResponseEntity<>(newGame, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/players/{playerId}/games")
+    public ResponseEntity<List<Game>> getGameListByPlayer(@PathVariable Long playerId) {
+        try {
+            List<Game> gameListByPlayer = playerService.getGameListByPlayer(playerId);
+            if (gameListByPlayer.isEmpty()) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Error", "No n'hi ha cap jugada a la llista");
+                return new ResponseEntity<>(headers, HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(gameListByPlayer, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/players/{playerId}/games")
+    public ResponseEntity<String> deleteGameList(@PathVariable Long playerId) {
+            try {
+                playerService.deleteGameList(playerId);
+                return new ResponseEntity<>("S'ha esborrat la llista de jugades del jugador amb el id: " + playerId,
+                        HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
     }
 
     @GetMapping("/players/ranking/winner")

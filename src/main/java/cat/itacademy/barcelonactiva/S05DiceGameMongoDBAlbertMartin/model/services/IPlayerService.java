@@ -12,17 +12,23 @@ public interface IPlayerService {
 
     Player updatePlayer(Long id, Player playerToUpdate);
 
-    Boolean deletePlayer(Long id);
+    void deletePlayer(Long id);
 
-    Game addGame (Long Id, Game game);
+    Game addGame(Long Id, Game game);
+
+    Game createGame(Long playerId);
+
+    List<Game> getGameListByPlayer(Long playerId);
+
+    void deleteGameList(Long playerId);
 
     Optional<Player> getPlayerById(Long id);
 
     List<Player> getAllPlayers();
 
-    Optional <Player> getWinningPlayer();
+    Optional<Player> getWinningPlayer();
 
-    Optional <Player> getLosingPlayer();
+    Optional<Player> getLosingPlayer();
 
     List<Player> getRankingPlayers();
 
