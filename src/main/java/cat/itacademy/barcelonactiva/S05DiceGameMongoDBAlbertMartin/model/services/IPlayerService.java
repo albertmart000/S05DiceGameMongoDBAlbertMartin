@@ -2,7 +2,6 @@ package cat.itacademy.barcelonactiva.S05DiceGameMongoDBAlbertMartin.model.servic
 
 import cat.itacademy.barcelonactiva.S05DiceGameMongoDBAlbertMartin.model.domain.Game;
 import cat.itacademy.barcelonactiva.S05DiceGameMongoDBAlbertMartin.model.domain.Player;
-
 import java.util.List;
 import java.util.Optional;
 

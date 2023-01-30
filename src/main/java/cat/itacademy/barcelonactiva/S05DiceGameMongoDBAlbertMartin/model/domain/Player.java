@@ -3,7 +3,6 @@ package cat.itacademy.barcelonactiva.S05DiceGameMongoDBAlbertMartin.model.domain
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;

@@ -1,7 +1,6 @@
 package cat.itacademy.barcelonactiva.S05DiceGameMongoDBAlbertMartin.model.domain;
 
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.io.Serializable;
 
 @Document
